@@ -3,52 +3,11 @@ import Collatz from "./components/collatz";
 import TablaPitagoras from "./components/tablaPitagoras";
 import EspiralNumerica from "./components/EspiralNumerica";
 import MultiplosSeparados from "./components/MultiplosSeparados";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 
 export default function App() {
   const [secuencia, setSecuencia] = useState<number[]>([]);
   const [numeroActual, setNumeroActual] = useState<number | null>(null);
   const tablaRef = useRef<HTMLDivElement>(null);
-
-  const generarPDF = async () => {
-    if (secuencia.length === 0) {
-      alert("Primero genera una secuencia de Collatz.");
-      return;
-    }
-
-    const doc = new jsPDF();
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("Conjetura de Collatz y Tabla Pitagórica", 15, 20);
-
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Número inicial: ${secuencia[0]}`, 15, 35);
-    doc.text(`Longitud de la secuencia: ${secuencia.length}`, 15, 43);
-    doc.text("Secuencia:", 15, 53);
-
-    const textoSecuencia = secuencia.join(" → ");
-    const lineas = doc.splitTextToSize(textoSecuencia, 180);
-    doc.text(lineas, 15, 63);
-
-    doc.text("Tabla pitagórica (resumen):", 15, 100);
-    const multiplos = secuencia
-      .filter((n) => n <= 10)
-      .map((n) => `${n}×${n}=${n * n}`)
-      .join(", ");
-    doc.text(multiplos || "No hay coincidencias pequeñas", 15, 110);
-
-    if (tablaRef.current) {
-      const canvas = await html2canvas(tablaRef.current);
-      const imgData = canvas.toDataURL("image/png");
-      const imgWidth = 180;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      doc.addImage(imgData, "PNG", 15, 125, imgWidth, imgHeight);
-    }
-
-    doc.save("collatz_pitagoras.pdf");
-  };
 
   return (
     <div style={styles.page}>
@@ -76,10 +35,6 @@ export default function App() {
           <EspiralNumerica secuencia={secuencia} niveles={10} />
         </div>
       </div>
-
-      <button onClick={generarPDF} style={styles.boton}>
-        📄 Descargar PDF
-      </button>
     </div>
   );
 }
