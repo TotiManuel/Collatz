@@ -9,8 +9,16 @@ export default function MultiplosSeparados({ secuencia }: Props) {
   const [otros, setOtros] = useState<number[]>([]);
 
   useEffect(() => {
-    // Rango de múltiplos a analizar (puedes ampliar)
-    const bases = Array.from({ length: 9 }, (_, i) => i + 2); // [2..10]
+    if (secuencia.length === 0) {
+      setMultiplos({});
+      setOtros([]);
+      return;
+    }
+
+    // Determinar el rango máximo en base al número más alto de la secuencia
+    const max = Math.max(...secuencia);
+    const bases = Array.from({ length: max - 1 }, (_, i) => i + 2); // [2..max]
+
     const temp: Record<number, number[]> = {};
     bases.forEach((b) => (temp[b] = []));
     const tempOtros: number[] = [];
@@ -32,52 +40,49 @@ export default function MultiplosSeparados({ secuencia }: Props) {
     setOtros(tempOtros);
   }, [secuencia]);
 
+  // Paleta de colores variada para las filas
   const colores = [
     "#ffcccc", "#ffd580", "#fff3b0", "#c3f2b3", "#b3e5fc",
-    "#c9c2f8", "#f8c2e0", "#d2c2f8", "#a8e6cf"
+    "#c9c2f8", "#f8c2e0", "#d2c2f8", "#a8e6cf", "#fddde6",
   ];
 
   return (
     <div style={styles.container}>
-      <h3 style={styles.titulo}>🔢 Clasificación por múltiplos</h3>
+      <h3 style={styles.titulo}>🔢 Clasificación por múltiplos (autoajustada)</h3>
 
-      {Object.entries(multiplos).map(([base, numeros], i) => (
-        <div
-          key={base}
-          style={{
-            ...styles.fila,
-            backgroundColor: colores[i % colores.length],
-          }}
-        >
-          <strong>Múltiplos de {base}:</strong>
-          <div style={styles.numeros}>
-            {numeros.length ? (
-              numeros.map((n, j) => (
+      {Object.entries(multiplos)
+        .filter(([_, numeros]) => numeros.length > 0)
+        .map(([base, numeros], i) => (
+          <div
+            key={base}
+            style={{
+              ...styles.fila,
+              backgroundColor: colores[i % colores.length],
+            }}
+          >
+            <strong>Múltiplos de {base}:</strong>
+            <div style={styles.numeros}>
+              {numeros.map((n, j) => (
                 <span key={j} style={styles.numero}>
                   {n}
                 </span>
-              ))
-            ) : (
-              <em style={styles.vacio}>—</em>
-            )}
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
 
-      <div style={{ ...styles.fila, backgroundColor: "#e0e0e0" }}>
-        <strong>Otros:</strong>
-        <div style={styles.numeros}>
-          {otros.length ? (
-            otros.map((n, j) => (
+      {otros.length > 0 && (
+        <div style={{ ...styles.fila, backgroundColor: "#e0e0e0" }}>
+          <strong>Otros:</strong>
+          <div style={styles.numeros}>
+            {otros.map((n, j) => (
               <span key={j} style={styles.numero}>
                 {n}
               </span>
-            ))
-          ) : (
-            <em style={styles.vacio}>—</em>
-          )}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -115,8 +120,5 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "3px 7px",
     color: "white",
     boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
-  },
-  vacio: {
-    color: "#555",
   },
 };
