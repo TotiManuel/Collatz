@@ -7,9 +7,9 @@ interface TablaProps {
 
 export default function TablaPitagoras({ secuencia, actual }: TablaProps) {
   const tabla: number[][] = [];
-  for (let i = 1; i <= 50; i++) {
+  for (let i = 1; i <= 20; i++) {
     const fila: number[] = [];
-    for (let j = 1; j <= 50; j++) {
+    for (let j = 1; j <= 20; j++) {
       fila.push(i * j);
     }
     tabla.push(fila);
