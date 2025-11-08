@@ -5,67 +5,54 @@ interface Props {
 }
 
 export default function MultiplosSeparados({ secuencia }: Props) {
-  const [m3, setM3] = useState<number[]>([]);
-  const [m6, setM6] = useState<number[]>([]);
-  const [m7, setM7] = useState<number[]>([]);
-  const [m9, setM9] = useState<number[]>([]);
+  const [multiplos, setMultiplos] = useState<Record<number, number[]>>({});
   const [otros, setOtros] = useState<number[]>([]);
 
   useEffect(() => {
-    const _m3: number[] = [];
-    const _m6: number[] = [];
-    const _m7: number[] = [];
-    const _m9: number[] = [];
-    const _otros: number[] = [];
+    // Rango de múltiplos a analizar (puedes ampliar)
+    const bases = Array.from({ length: 9 }, (_, i) => i + 2); // [2..10]
+    const temp: Record<number, number[]> = {};
+    bases.forEach((b) => (temp[b] = []));
+    const tempOtros: number[] = [];
 
     secuencia.forEach((n) => {
       let esMultiplo = false;
 
-      if (n % 3 === 0) {
-        _m3.push(n);
-        esMultiplo = true;
-      }
-      if (n % 6 === 0) {
-        _m6.push(n);
-        esMultiplo = true;
-      }
-      if (n % 7 === 0) {
-        _m7.push(n);
-        esMultiplo = true;
-      }
-      if (n % 9 === 0) {
-        _m9.push(n);
-        esMultiplo = true;
-      }
+      bases.forEach((b) => {
+        if (n % b === 0) {
+          temp[b].push(n);
+          esMultiplo = true;
+        }
+      });
 
-      if (!esMultiplo) _otros.push(n);
+      if (!esMultiplo) tempOtros.push(n);
     });
 
-    setM3(_m3);
-    setM6(_m6);
-    setM7(_m7);
-    setM9(_m9);
-    setOtros(_otros);
+    setMultiplos(temp);
+    setOtros(tempOtros);
   }, [secuencia]);
 
-  const filas = [
-    { titulo: "Múltiplos de 3", color: "#ffcccc", numeros: m3 },
-    { titulo: "Múltiplos de 6", color: "#ffd580", numeros: m6 },
-    { titulo: "Múltiplos de 7", color: "#c3f2b3", numeros: m7 },
-    { titulo: "Múltiplos de 9", color: "#c9c2f8", numeros: m9 },
-    { titulo: "Otros", color: "#e0e0e0", numeros: otros },
+  const colores = [
+    "#ffcccc", "#ffd580", "#fff3b0", "#c3f2b3", "#b3e5fc",
+    "#c9c2f8", "#f8c2e0", "#d2c2f8", "#a8e6cf"
   ];
 
   return (
     <div style={styles.container}>
       <h3 style={styles.titulo}>🔢 Clasificación por múltiplos</h3>
 
-      {filas.map((fila, i) => (
-        <div key={i} style={{ ...styles.fila, backgroundColor: fila.color }}>
-          <strong>{fila.titulo}:</strong>
+      {Object.entries(multiplos).map(([base, numeros], i) => (
+        <div
+          key={base}
+          style={{
+            ...styles.fila,
+            backgroundColor: colores[i % colores.length],
+          }}
+        >
+          <strong>Múltiplos de {base}:</strong>
           <div style={styles.numeros}>
-            {fila.numeros.length ? (
-              fila.numeros.map((n, j) => (
+            {numeros.length ? (
+              numeros.map((n, j) => (
                 <span key={j} style={styles.numero}>
                   {n}
                 </span>
@@ -76,6 +63,21 @@ export default function MultiplosSeparados({ secuencia }: Props) {
           </div>
         </div>
       ))}
+
+      <div style={{ ...styles.fila, backgroundColor: "#e0e0e0" }}>
+        <strong>Otros:</strong>
+        <div style={styles.numeros}>
+          {otros.length ? (
+            otros.map((n, j) => (
+              <span key={j} style={styles.numero}>
+                {n}
+              </span>
+            ))
+          ) : (
+            <em style={styles.vacio}>—</em>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
